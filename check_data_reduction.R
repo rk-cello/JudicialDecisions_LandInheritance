@@ -28,7 +28,7 @@ for (i in year_list) {
   row_num_all <- rbind(row_num_all, row_num_i)
 }
 
-# criminal cases
+# criminal cases (uses crime case df before cleaning) 
 row_num_criminal_all <- NULL
 
 for (i in year_list) {
@@ -51,5 +51,15 @@ crime_case_share <- row_num_all %>%
   select(year, n_cases, n_criminal, share_criminal)
 
 write_csv(crime_case_share, "stat_table/crime_case_share.csv")
+
+ggplot(crime_case_share, aes(x = year, y = share_criminal)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Share of criminal cases in all cases",
+       x = "Year",
+       y = "Share of criminal cases") +
+  theme_minimal()
+
+ggsave("fig/crime_case_share.png", width = 6, height = 4, units = "in", bg = "white")
 
 
