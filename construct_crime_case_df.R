@@ -40,11 +40,6 @@ cases_2010 <- cases_2010 %>%
     female_pet_dummy = if_else(female_petitioner == "1 female", 1, if_else(female_petitioner == "0 male", 0, NA))
   )
 
-# check if all ddl_case_id for year 2010 end with 2010 --> No
-check_ddl_case_id <- cases_2010 %>% 
-  filter(!str_detect(ddl_case_id, "2010$")) %>% 
-  select(ddl_case_id)
-
 # save
 write.table(cases_2010, "data/dev/cases/cases_2010.csv", 
             sep = ",", row.names = FALSE, col.names = TRUE, quote = TRUE)

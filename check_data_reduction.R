@@ -1,7 +1,6 @@
 # check reduction of data after merging
 
 #### notes ####
-# 
 
 #### environment setup ####
 # set working directory
@@ -47,7 +46,7 @@ for (i in year_list) {
 
 crime_case_share <- row_num_all %>% 
   left_join(row_num_criminal_all, by = "year") %>% 
-  mutate(share_criminal = n_criminal/n_cases) %>% 
+  mutate(share_criminal = n_criminal / n_cases) %>% 
   select(year, n_cases, n_criminal, share_criminal)
 
 write_csv(crime_case_share, "stat_table/crime_case_share.csv")
@@ -55,6 +54,7 @@ write_csv(crime_case_share, "stat_table/crime_case_share.csv")
 ggplot(crime_case_share, aes(x = year, y = share_criminal)) +
   geom_line() +
   geom_point() +
+  ylim(0, 1) +
   labs(title = "Share of criminal cases in all cases",
        x = "Year",
        y = "Share of criminal cases") +
