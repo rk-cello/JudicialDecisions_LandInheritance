@@ -34,7 +34,7 @@ for (i in year_list) {
   crime_i <- NULL
 }
 
-#### clean crime case df ####
+#### clean crime case data (each year) ####
 
 for (i in year_list) {
   crime_i <- fread(paste0("data/dev/crime_merged/crime_", i, "_merged.csv"))
@@ -93,25 +93,7 @@ for (i in year_list) {
   rm(crime_i)
 }
 
-
-#### notes ####
-crime_2011 %>% 
-  summarise(
-    n_criminal = n(),
-    n_red_flag1 = sum(red_flag1, na.rm = TRUE),
-    n_red_flag2 = sum(red_flag2, na.rm = TRUE),
-    n_filing_outside = sum(date_of_filing_outside_dummy, na.rm = TRUE),
-    n_decision_outside = sum(date_of_decision_outside_dummy, na.rm = TRUE),
-    n_tenure_length_negative = sum(tenure_length_negative, na.rm = TRUE),
-    share_red_flag1 = n_red_flag1 / n_criminal,
-    share_red_flag2 = n_red_flag2 / n_criminal,
-    share_filing_outside = n_filing_outside / n_criminal,
-    share_decision_outside = n_decision_outside / n_criminal,
-    share_tenure_length_negative = n_tenure_length_negative / n_criminal
-  ) %>% 
-  select(starts_with("share_"))
-
-#### Visualize Case Duration####
+#### visualize case duration####
 output_dir <- "fig/case_duration"
 dir.create(output_dir, showWarnings = FALSE)
 
@@ -163,6 +145,49 @@ for (i in year_list) {
 
 
 
+
+#### generate case duration red flag across years ####
+crime_df <- NULL
+
+for (i in year_list) {
+  crime_i <- fread(paste0("data/dev/crime_merged/crime_", i, "_merged_clean.csv")) %>% 
+    mutate(conviction = if_else(disp_name == "convicted", 1, 0)) %>% 
+    select(year, ddl_case_id, female_def_dummy, female_pet_dummy, ddl_judge_id, conviction, case_duration)
+  
+  crime_df <- rbind(crime_df, crime_i)
+  rm(crime_i)
+}
+
+crime_df <- crime_df %>% 
+  mutate(
+    red_flag = case_when(
+      case_duration < 0 ~ 1,
+      case_duration > quantile(case_duration, 0.99, na.rm = TRUE) ~ 1,
+      TRUE ~ 0
+    )) 
+
+output_dir <- "data/dev/crime_appended"
+dir.create(output_dir, showWarnings = FALSE)
+write_csv(crime_df, "data/dev/crime_appended/crime_appended_redflag.csv")
+
+
+
+#### notes ####
+crime_2011 %>% 
+  summarise(
+    n_criminal = n(),
+    n_red_flag1 = sum(red_flag1, na.rm = TRUE),
+    n_red_flag2 = sum(red_flag2, na.rm = TRUE),
+    n_filing_outside = sum(date_of_filing_outside_dummy, na.rm = TRUE),
+    n_decision_outside = sum(date_of_decision_outside_dummy, na.rm = TRUE),
+    n_tenure_length_negative = sum(tenure_length_negative, na.rm = TRUE),
+    share_red_flag1 = n_red_flag1 / n_criminal,
+    share_red_flag2 = n_red_flag2 / n_criminal,
+    share_filing_outside = n_filing_outside / n_criminal,
+    share_decision_outside = n_decision_outside / n_criminal,
+    share_tenure_length_negative = n_tenure_length_negative / n_criminal
+  ) %>% 
+  select(starts_with("share_"))
 
 #### notes ####
 ggplot(crime_2010, aes(x = case_duration)) +
