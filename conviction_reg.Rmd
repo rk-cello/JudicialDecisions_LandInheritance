@@ -1,0 +1,40 @@
+---
+title: "conviction_reg"
+output: html_document
+date: "2025-04-08"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "/Users/reinakishida/Dropbox/Judicial_Decisions_and_Gender_Norms/analysis")
+
+pacman::p_load(data.table, tidyverse, fixest)
+```
+
+
+# load data
+```{r}
+crime_appended_redflag <- fread("data/dev/crime_appended/crime_appended_redflag.csv")
+```
+
+# simple FE
+```{r}
+feols(
+  conviction ~ ddl_judge_id | year,
+  data = crime_appended_redflag %>% filter(red_flag == 0 & !is.na(ddl_judge_id)) %>% 
+    select(year, ddl_judge_id, conviction) %>% 
+    mutate(ddl_judge_id = as.factor(ddl_judge_id))
+)
+```
+
+# with controls
+```{r}
+feols(
+  conviction ~ ddl_judge_id + female_def_dummy + female_pet_dummy + female_adv_def_dummy + female_adv_pet_dummy | year,
+  data = crime_appended_redflag %>% filter(red_flag == 0 & !is.na(ddl_judge_id)) %>% 
+    select(-c(case_duration, red_flag, ddl_case_id)) %>% 
+    mutate(ddl_judge_id = as.factor(ddl_judge_id))
+)
+```
+
+

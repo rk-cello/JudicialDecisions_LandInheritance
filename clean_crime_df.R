@@ -152,7 +152,9 @@ crime_df <- NULL
 for (i in year_list) {
   crime_i <- fread(paste0("data/dev/crime_merged/crime_", i, "_merged_clean.csv")) %>% 
     mutate(conviction = if_else(disp_name == "convicted", 1, 0)) %>% 
-    select(year, ddl_case_id, female_def_dummy, female_pet_dummy, ddl_judge_id, conviction, case_duration)
+    select(year, ddl_case_id, ddl_judge_id, conviction,
+           female_def_dummy, female_pet_dummy, female_adv_def_dummy, female_adv_pet_dummy,
+           case_duration)
   
   crime_df <- rbind(crime_df, crime_i)
   rm(crime_i)
@@ -169,7 +171,6 @@ crime_df <- crime_df %>%
 output_dir <- "data/dev/crime_appended"
 dir.create(output_dir, showWarnings = FALSE)
 write_csv(crime_df, "data/dev/crime_appended/crime_appended_redflag.csv")
-
 
 
 #### notes ####

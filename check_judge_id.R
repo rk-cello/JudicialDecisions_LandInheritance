@@ -191,7 +191,8 @@ for (i in year_list) {
   rm(summary_i, summary_with_p_i)
 
   
-# plot time trend of conviction rate by judge_id_na with standard error
+#### plot conviction rate ####
+  # time trend of conviction rate by judge_id_na with standard error
 crime_df %>% 
   group_by(year, judge_id_na) %>% 
   summarise(conviction_rate = mean(conviction, na.rm = TRUE), 
@@ -203,8 +204,7 @@ crime_df %>%
   labs(title = "Conviction Rate by Judge ID NA",
        x = "Year",
        y = "Conviction Rate") +
-  ylim(0, 1) +
-  # edit legend title and labels
+  ylim(0, 0.15) +
   scale_color_manual(name = "Judge ID NA", 
                      values = c("0" = "blue", "1" = "red"),
                      labels = c("0" = "Non-NA", "1" = "NA")) +
